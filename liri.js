@@ -11,7 +11,7 @@ var command = process.argv[2];
 var searchTerm = " ";
 for(i = 3; i < process.argv.length; i++) {
     if(i > 3 && i < process.argv.length) {
-        searchTerm = searchTerm + " " + process.argv[i];
+        searchTerm = searchTerm + "+" + process.argv[i];
     }else{
         searchTerm += process.argv[i];
     }
@@ -37,9 +37,9 @@ if(command === "my-tweets") {
         }
     })
 }
-if(command === "spotify-this-song") {
-    spotify.search({ type: 'track', query: searchTerm }, function(err, data) {
-        if(err) {
+var spotifyThisSong = function() {
+    spotify.search({ type: 'track', query: searchTerm }, function (err, data) {
+        if (err) {
             return console.log(err);
         }
         var song = data.tracks.items[0];
@@ -48,13 +48,17 @@ if(command === "spotify-this-song") {
         console.log("\nArtist(s):");
         var artistsArr = song.artists;
         console.log(" - " + artistsArr[0].name);
-        for(j = 1; j > artistsArr.length; j++) {
+        for (j = 1; j > artistsArr.length; j++) {
             console.log(" - " + artistsArr[j].name);
         }
         console.log("\nSong Title:\n - " + song.name);
         console.log("\nPreview Link:\n - " + song.preview_url);
         console.log("\nAlbum:\n - " + song.album.name);
     })
+}
+
+if(command === "spotify-this-song") {
+    spotifyThisSong();
 }
 
 if(command === "movie-this") {
@@ -76,6 +80,21 @@ if(command === "movie-this") {
                     console.log("\nIMDB Rating:\n - " + movieJSON.Ratings[i].Value);
                 }
             }
+        }
+    })
+}
+
+if(command === "do-what-it-says") {
+    fs.readFile("random.txt", "utf8", function(error, data) {
+        if(error) {
+            return console.log(error);
+        }
+        // console.log(data);
+        var dataArr = data.split(",");
+        // console.log(dataArr);
+        if(dataArr[0] === "spotify-this-song") {
+            searchTerm = dataArr[1];
+            spotifyThisSong();
         }
     })
 }
